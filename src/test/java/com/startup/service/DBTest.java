@@ -35,6 +35,7 @@ public class DBTest {
     private MessageService messageService;
 
     @Test
+    // db 통합 테스트
     public void dbTest() {
 
         // user insert
@@ -110,6 +111,7 @@ public class DBTest {
                 .messageInfoId(messageInfos.get(0).getId())
                 .contents("안녕 메세지를 보냈어")
                 .build();
+
         messageService.send(message);
 
         List<Message> messages = messageService.findMessages(messageInfo);

@@ -29,6 +29,7 @@ public class Board {
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
 
+
     private String contents;
 
     @OneToMany(mappedBy = "board")
