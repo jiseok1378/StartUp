@@ -1,9 +1,6 @@
 package com.startup.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -12,7 +9,6 @@ import java.util.List;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Getter
 public class Board {
 
@@ -23,6 +19,12 @@ public class Board {
     @Column(name = "user_id")
     private String userId;
 
+    @Builder
+    public Board(String userId, String contents){
+        this.userId = userId;
+        this.contents = contents;
+    }
+
     @ManyToOne
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
@@ -31,4 +33,7 @@ public class Board {
 
     @OneToMany(mappedBy = "board")
     private List<Tag> tags = new ArrayList<>();
+
+    @OneToMany(mappedBy = "board")
+    private List<UserLike> likes = new ArrayList<>();
 }

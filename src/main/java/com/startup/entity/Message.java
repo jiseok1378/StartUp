@@ -1,6 +1,5 @@
 package com.startup.entity;
 
-import com.startup.entity.key.TagKey;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,28 +9,25 @@ import javax.persistence.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
 @Entity
-@IdClass(TagKey.class)
-public class Tag {
+@Getter
+public class Message {
 
     @Id
-    @GeneratedValue
     private int id;
 
-    @Id
-    @Column(name="board_id")
-    private int boardId;
+    @Column(name = "message_info_id")
+    private int messageInfoId;
 
     @ManyToOne
-    @JoinColumn(name = "board_id", updatable = false, insertable = false)
-    private Board board;
+    @JoinColumn(name = "message_info_id", insertable = false, updatable = false)
+    private MessageInfo messageInfo;
 
     private String contents;
 
     @Builder
-    public Tag(int boardId, String contents){
-        this.boardId = boardId;
+    public Message(int messageInfoId, String contents){
+        this.messageInfoId = messageInfoId;
         this.contents = contents;
     }
 }

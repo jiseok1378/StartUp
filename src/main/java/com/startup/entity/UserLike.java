@@ -12,7 +12,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Builder
 @Entity
 @IdClass(LikeKey.class)
 public class UserLike implements Serializable {
@@ -32,5 +31,9 @@ public class UserLike implements Serializable {
     @JoinColumn(name = "user_id", updatable = false, insertable = false)
     private User user;
 
-    private String contents;
+    @Builder
+    public UserLike(int boardId, String userId){
+        this.boardId = boardId;
+        this.userId = userId;
+    }
 }

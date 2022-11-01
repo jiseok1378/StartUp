@@ -13,7 +13,6 @@ import java.util.List;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Getter
 public class User {
 
@@ -31,15 +30,17 @@ public class User {
     @Column(length = 30)
     private String name;
 
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Board> boardList = new ArrayList<>();
 
-    public User addBoard(Board board){
-        boardList.add(board);
-        return this;
+    @Builder
+    public User(String userId, String password, String email, String registerNumber, String name){
+        this.userId = userId;
+        this.password = password;
+        this.email = email;
+        this.registerNumber = registerNumber;
+        this.name = name;
     }
-
 
 
 }
