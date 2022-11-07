@@ -2,7 +2,6 @@ package com.startup.service;
 
 import com.startup.entity.*;
 import com.startup.entity.key.LikeKey;
-import com.startup.entity.key.TagKey;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
@@ -41,18 +39,21 @@ public class DBTest {
         // user insert
         User user = User.builder()
                 .userId("test")
+                .password("test")
                 .name("test")
                 .registerNumber("test")
                 .build();
         User user2 = User.builder()
                 .userId("test2")
+                .password("test2")
                 .name("test2")
                 .registerNumber("test2")
                 .build();
         userService.add(user);
         userService.add(user2);
 
-        User findUser = userService.find("test");
+        User findUser = userService.findWithPassword("test", "test").orElseThrow();
+
         Assertions.assertThat(findUser.getName()).isEqualTo("test");
 
         // board insert

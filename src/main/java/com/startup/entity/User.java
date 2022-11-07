@@ -1,6 +1,7 @@
 package com.startup.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.startup.dto.inter.SignUpDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -48,6 +49,13 @@ public class User implements UserDetails {
         this.name = name;
     }
 
+    public User(SignUpDto signUpDto){
+        this.userId = signUpDto.getUserId();
+        this.password = signUpDto.getPassword();
+        this.email = signUpDto.getEmail();
+        this.registerNumber = signUpDto.getRegisterNumber();
+        this.name = signUpDto.getName();
+    }
     @ElementCollection
     private List<String> roles = new ArrayList<>();
 

@@ -2,7 +2,6 @@ package com.startup.service;
 
 import com.startup.entity.Board;
 import com.startup.repository.BoardRepository;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
