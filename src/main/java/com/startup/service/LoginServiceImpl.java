@@ -1,6 +1,6 @@
 package com.startup.service;
-import com.startup.dto.inter.LoginDto;
-import com.startup.dto.inter.SignUpDto;
+import com.startup.dto.login.inter.LoginDto;
+import com.startup.dto.login.inter.SignUpDto;
 import com.startup.entity.User;
 import com.startup.repository.UserRepository;
 import com.startup.security.jwt.JwtProvider;

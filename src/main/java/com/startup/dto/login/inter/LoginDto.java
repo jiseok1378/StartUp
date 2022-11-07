@@ -1,4 +1,4 @@
-package com.startup.dto.inter;
+package com.startup.dto.login.inter;
 
 
 public interface LoginDto {

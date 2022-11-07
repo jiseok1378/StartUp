@@ -1,7 +1,7 @@
 package com.startup.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.startup.dto.inter.SignUpDto;
+import com.startup.dto.login.inter.SignUpDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,7 +11,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

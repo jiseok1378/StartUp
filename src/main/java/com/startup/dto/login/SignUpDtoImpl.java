@@ -1,6 +1,6 @@
-package com.startup.dto;
+package com.startup.dto.login;
 
-import com.startup.dto.inter.SignUpDto;
+import com.startup.dto.login.inter.SignUpDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

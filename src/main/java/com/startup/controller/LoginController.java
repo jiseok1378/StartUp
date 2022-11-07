@@ -1,6 +1,6 @@
 package com.startup.controller;
 
-import com.startup.dto.LoginDtoImpl;
+import com.startup.dto.login.LoginDtoImpl;
 import com.startup.service.inter.LoginService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

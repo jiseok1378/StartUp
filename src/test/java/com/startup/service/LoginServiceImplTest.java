@@ -1,9 +1,9 @@
 package com.startup.service;
 
-import com.startup.dto.LoginDtoImpl;
-import com.startup.dto.SignUpDtoImpl;
-import com.startup.dto.inter.LoginDto;
-import com.startup.dto.inter.SignUpDto;
+import com.startup.dto.login.LoginDtoImpl;
+import com.startup.dto.login.SignUpDtoImpl;
+import com.startup.dto.login.inter.LoginDto;
+import com.startup.dto.login.inter.SignUpDto;
 import com.startup.security.jwt.JwtProvider;
 import com.startup.service.inter.LoginService;
 import org.assertj.core.api.Assertions;

@@ -1,7 +1,7 @@
 package com.startup.service.inter;
 
-import com.startup.dto.inter.LoginDto;
-import com.startup.dto.inter.SignUpDto;
+import com.startup.dto.login.inter.LoginDto;
+import com.startup.dto.login.inter.SignUpDto;
 
 public interface LoginService {
 
