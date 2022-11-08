@@ -1,5 +1,7 @@
 package com.startup.security.jwt;
 
+import com.startup.dto.login.TokenDtoImpl;
+import com.startup.dto.login.inter.TokenDto;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -24,7 +26,8 @@ public class JwtProvider {
     @Value("spring.jwt.secret")
     private String secretKey;
 
-    private Long tokenValidMillisecond = 60 * 60 * 1000L;
+    private final static long accessTokenValidMillisecond = 60 * 60 * 1000L; // 1시간
+    private final static long refreshTokenValidMillisecond = 60 * 60 * 1000L * 24; // 24시간 (하루)
 
     private final CustomUserDetailsService userDetailsService;
 
@@ -33,18 +36,27 @@ public class JwtProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    public String createToken(String userPk, List<String> roles){
+    private String createTokenInner(String userPk, List<String> roles, long validSecond){
         Claims claims = Jwts.claims().setSubject(userPk);
         claims.put("roles", roles);
         Date now = new Date();
-
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + tokenValidMillisecond))
+                .setExpiration(new Date(now.getTime() + validSecond))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
+    public TokenDto createToken(String userPk, List<String> roles){
+
+        String accessToken = createTokenInner(userPk, roles, accessTokenValidMillisecond);
+        String refreshToken = createTokenInner(userPk, roles, refreshTokenValidMillisecond);
+        return TokenDtoImpl.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
+
 
     public Authentication getAuthentication(String token){
         UserDetails userDetails = userDetailsService.loadUserByUsername(this.getUserPk(token));

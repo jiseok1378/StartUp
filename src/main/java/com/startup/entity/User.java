@@ -2,10 +2,7 @@ package com.startup.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.startup.dto.login.inter.SignUpDto;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -39,13 +36,17 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Board> boardList = new ArrayList<>();
 
+    @Setter
+    private String refreshToken;
+
     @Builder
-    public User(String userId, String password, String email, String registerNumber, String name){
+    public User(String userId, String password, String email, String registerNumber, String name, String refreshToken){
         this.userId = userId;
         this.password = password;
         this.email = email;
         this.registerNumber = registerNumber;
         this.name = name;
+        this.refreshToken = refreshToken;
     }
 
     public User(SignUpDto signUpDto){

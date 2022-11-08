@@ -1,7 +1,9 @@
 package com.startup.service;
 
+import com.startup.dto.login.inter.TokenDto;
 import com.startup.entity.*;
 import com.startup.entity.key.LikeKey;
+import com.startup.security.jwt.JwtProvider;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -32,6 +36,10 @@ public class DBTest {
     @Autowired
     private MessageService messageService;
 
+
+    @Autowired
+    private JwtProvider jwtProvider;
+
     @Test
     // db 통합 테스트
     public void dbTest() {
@@ -49,8 +57,13 @@ public class DBTest {
                 .name("test2")
                 .registerNumber("test2")
                 .build();
+        TokenDto token = jwtProvider.createToken(user.getUserId(), new ArrayList<>(){{ add("USER"); }});
+
+        user.setRefreshToken(token.getRefreshToken());
+
         userService.add(user);
         userService.add(user2);
+
 
         User findUser = userService.findWithPassword("test", "test").orElseThrow();
 
