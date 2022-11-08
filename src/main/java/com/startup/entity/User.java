@@ -2,6 +2,7 @@ package com.startup.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.startup.dto.login.inter.SignUpDto;
+import com.startup.role.ROLE;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -49,12 +50,13 @@ public class User implements UserDetails {
         this.refreshToken = refreshToken;
     }
 
-    public User(SignUpDto signUpDto){
+    public User(SignUpDto signUpDto, List<ROLE> roles){
         this.userId = signUpDto.getUserId();
         this.password = signUpDto.getPassword();
         this.email = signUpDto.getEmail();
         this.registerNumber = signUpDto.getRegisterNumber();
         this.name = signUpDto.getName();
+        this.roles = roles.stream().map(ROLE::getRole).collect(Collectors.toList());
     }
     @ElementCollection
     private List<String> roles = new ArrayList<>();
