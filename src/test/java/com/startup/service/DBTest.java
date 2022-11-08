@@ -42,7 +42,7 @@ public class DBTest {
 
     @Test
     // db 통합 테스트
-    public void dbTest() {
+    public void dbTest() throws InterruptedException {
 
         // user insert
         User user = User.builder()
@@ -68,6 +68,8 @@ public class DBTest {
         User findUser = userService.findWithPassword("test", "test").orElseThrow();
 
         Assertions.assertThat(findUser.getName()).isEqualTo("test");
+
+        Assertions.assertThat(jwtProvider.isAccessTokenValid(token.getAccessToken(), findUser.getRefreshToken())).isEqualTo(true); // refresh 토큰 검증
 
         // board insert
         Board board = Board.builder()

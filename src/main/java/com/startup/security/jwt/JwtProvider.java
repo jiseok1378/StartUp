@@ -48,7 +48,6 @@ public class JwtProvider {
                 .compact();
     }
     public TokenDto createToken(String userPk, List<String> roles){
-
         String accessToken = createTokenInner(userPk, roles, accessTokenValidMillisecond);
         String refreshToken = createTokenInner(userPk, roles, refreshTokenValidMillisecond);
         return TokenDtoImpl.builder()
@@ -57,7 +56,14 @@ public class JwtProvider {
                 .build();
     }
 
-
+    private Date getExpireDate(String token){
+        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getExpiration();
+    }
+    public boolean isAccessTokenValid(String refreshToken, String accessToken){
+        Date refreshDate = getExpireDate(refreshToken);
+        Date accessDate = getExpireDate(accessToken);
+        return refreshDate.before(accessDate); // access token이 refresh token보다 이전이면 true
+    }
     public Authentication getAuthentication(String token){
         UserDetails userDetails = userDetailsService.loadUserByUsername(this.getUserPk(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
