@@ -2,11 +2,10 @@ package com.startup.security.jwt;
 
 import com.startup.dto.login.TokenDtoImpl;
 import com.startup.dto.login.inter.TokenDto;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.startup.util.Tuple;
+import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.jpa.spi.TupleBuilderTransformer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Component
@@ -36,23 +36,29 @@ public class JwtProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    private String createTokenInner(String userPk, List<String> roles, long validSecond){
-        Claims claims = Jwts.claims().setSubject(userPk);
-        claims.put("roles", roles);
+    private Tuple<String, Date> createTokenInner(Optional<Claims> claims, String userPk, List<String> roles, long validSecond){
+        JwtBuilder builder = Jwts.builder();
+        claims.ifPresent(builder::setClaims);
         Date now = new Date();
-        return Jwts.builder()
-                .setClaims(claims)
+        Date expirationDate = new Date(now.getTime() + validSecond);
+
+        String token = builder
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + validSecond))
+                .setExpiration(expirationDate)
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
+
+        return new Tuple(token, expirationDate);
     }
     public TokenDto createToken(String userPk, List<String> roles){
-        String accessToken = createTokenInner(userPk, roles, accessTokenValidMillisecond);
-        String refreshToken = createTokenInner(userPk, roles, refreshTokenValidMillisecond);
+        Claims accessClaims = Jwts.claims().setSubject(userPk);
+        accessClaims.put("roles", roles);
+        var accessToken = createTokenInner(Optional.of(accessClaims), userPk, roles, accessTokenValidMillisecond);
+        var refreshToken = createTokenInner(Optional.empty(), userPk, roles, refreshTokenValidMillisecond);
         return TokenDtoImpl.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
+                .accessToken(accessToken.getFirst())
+                .refreshToken(refreshToken.getFirst())
+                .expirationDate(accessToken.getSecond()) //
                 .build();
     }
 

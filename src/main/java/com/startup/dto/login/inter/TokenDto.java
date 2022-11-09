@@ -1,9 +1,11 @@
 package com.startup.dto.login.inter;
 
 
+import java.util.Date;
+
 public interface TokenDto {
     String getAccessToken();
     String getRefreshToken();
-    void setRefreshToken(String accessToken);
-    void setAccessToken(String refreshToken);
+
+    Date getExpirationDate(); // access token 의 expire date 전달
 }

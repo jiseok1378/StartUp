@@ -1,11 +1,12 @@
 package com.startup.controller;
 
 import com.startup.dto.login.LoginDtoImpl;
+import com.startup.dto.login.SignUpDtoImpl;
+import com.startup.dto.login.inter.LoginResponse;
+import com.startup.dto.login.inter.SignUpDto;
 import com.startup.service.inter.LoginService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -14,10 +15,13 @@ public class LoginController {
 
     private final LoginService loginService;
 
-    @GetMapping("/login")
-    public String login(LoginDtoImpl loginDto){
-        loginService.logIn(loginDto);
-        return "test";
+    @PostMapping("/login")
+    public LoginResponse login(@RequestBody LoginDtoImpl loginDto){
+        return loginService.logIn(loginDto);
     }
 
+    @PostMapping("/signup")
+    public String signUp(@RequestBody SignUpDtoImpl signUpDto){
+        return loginService.signUp(signUpDto);
+    }
 }

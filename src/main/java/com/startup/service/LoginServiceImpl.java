@@ -1,5 +1,7 @@
 package com.startup.service;
+import com.startup.dto.login.LoginResponseDtoImpl;
 import com.startup.dto.login.inter.LoginDto;
+import com.startup.dto.login.inter.LoginResponse;
 import com.startup.dto.login.inter.SignUpDto;
 import com.startup.dto.login.inter.TokenDto;
 import com.startup.entity.User;
@@ -22,14 +24,19 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     @Transactional
-    public String logIn(LoginDto loginDto) {
+    public LoginResponse logIn(LoginDto loginDto) {
         Optional<User> _user = userRepository.findByUserIdAndPassword(loginDto.getUserId(), loginDto.getPassword());
         if(_user.isPresent()){
             User user = _user.get();
             TokenDto token = jwtProvider.createToken(user.getUserId(), user.getRoles()); // jwt 생성
             user.setRefreshToken(token.getRefreshToken()); // refresh token 저장
 
-            return token.getAccessToken(); // 클라이언트 쿠키에서 저장될 access token만 전달
+            return LoginResponseDtoImpl.builder()
+                    .accessToken(token.getAccessToken())
+                    .refreshToken(token.getRefreshToken())
+                    .expirationDate(token.getExpirationDate()) // access token의 expire Date 전달
+                    .userName(user.getName())
+                    .build();
         }
         else{
             throw new NoSuchElementException();
