@@ -2,6 +2,7 @@ package com.startup.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.startup.dto.login.inter.SignUpDto;
+import com.startup.dto.user.UserDto;
 import com.startup.role.ROLE;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -50,6 +51,15 @@ public class User implements UserDetails {
         this.refreshToken = refreshToken;
     }
 
+    public User(UserDto userDto){
+        this.userId = userDto.getUserId();
+        this.password = userDto.getPassword();
+        this.email = userDto.getEmail();
+        this.registerNumber = userDto.getRegisterNumber();
+        this.name = userDto.getName();
+        this.roles = userDto.getRoles();
+        this.refreshToken = userDto.getRefreshToken();
+    }
     public User(SignUpDto signUpDto, List<ROLE> roles){
         this.userId = signUpDto.getUserId();
         this.password = signUpDto.getPassword();

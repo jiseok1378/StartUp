@@ -3,7 +3,9 @@ package com.startup.service;
 import com.startup.dto.login.inter.TokenDto;
 import com.startup.entity.*;
 import com.startup.entity.key.LikeKey;
+import com.startup.repository.UserRepository;
 import com.startup.security.jwt.JwtProvider;
+import com.startup.service.inter.UserService;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,14 +15,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class DBTest {
 
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
 
     @Autowired
     private BoardService boardService;
@@ -57,19 +58,19 @@ public class DBTest {
                 .name("test2")
                 .registerNumber("test2")
                 .build();
-        TokenDto token = jwtProvider.createToken(user.getUserId(), new ArrayList<>(){{ add("USER"); }});
+        TokenDto token = jwtProvider.createAccessAndRefreshToken(user.getUserId(), new ArrayList<>(){{ add("USER"); }});
 
         user.setRefreshToken(token.getRefreshToken());
 
-        userService.add(user);
-        userService.add(user2);
+        userRepository.save(user);
+        userRepository.save(user2);
 
 
-        User findUser = userService.findWithPassword("test", "test").orElseThrow();
+        User findUser = userRepository.findByUserIdAndPassword("test", "test").orElseThrow();
 
         Assertions.assertThat(findUser.getName()).isEqualTo("test");
 
-        Assertions.assertThat(jwtProvider.isAccessTokenValid(token.getAccessToken(), findUser.getRefreshToken())).isEqualTo(true); // refresh 토큰 검증
+        Assertions.assertThat(jwtProvider.getValidationTokenWithRefresh(token.getAccessToken(), findUser.getRefreshToken())).isEqualTo(JwtProvider.TokenValidation.ACCESS_TOKEN_VALID_AND_REFRESH_TOKEN_VALID); // refresh 토큰 검증
 
         // board insert
         Board board = Board.builder()

@@ -1,5 +1,6 @@
 package com.startup.service;
 import com.startup.dto.login.LoginResponseDtoImpl;
+import com.startup.dto.login.TokenReissueDto;
 import com.startup.dto.login.inter.LoginDto;
 import com.startup.dto.login.inter.LoginResponse;
 import com.startup.dto.login.inter.SignUpDto;
@@ -8,7 +9,7 @@ import com.startup.entity.User;
 import com.startup.repository.UserRepository;
 import com.startup.role.ROLE;
 import com.startup.security.jwt.JwtProvider;
-import com.startup.service.inter.LoginService;
+import com.startup.service.inter.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +18,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class LoginServiceImpl implements LoginService {
+public class UserServiceImpl implements UserService {
 
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
@@ -28,12 +29,11 @@ public class LoginServiceImpl implements LoginService {
         Optional<User> _user = userRepository.findByUserIdAndPassword(loginDto.getUserId(), loginDto.getPassword());
         if(_user.isPresent()){
             User user = _user.get();
-            TokenDto token = jwtProvider.createToken(user.getUserId(), user.getRoles()); // jwt 생성
+            TokenDto token = jwtProvider.createAccessAndRefreshToken(user.getUserId(), user.getRoles()); // jwt 생성
             user.setRefreshToken(token.getRefreshToken()); // refresh token 저장
 
             return LoginResponseDtoImpl.builder()
                     .accessToken(token.getAccessToken())
-                    .refreshToken(token.getRefreshToken())
                     .expirationDate(token.getExpirationDate()) // access token의 expire Date 전달
                     .userName(user.getName())
                     .build();
@@ -41,10 +41,6 @@ public class LoginServiceImpl implements LoginService {
         else{
             throw new NoSuchElementException();
         }
-    }
-
-    @Override
-    public void logOut() {
     }
 
     @Override
@@ -60,7 +56,37 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public void deleteUser() {
+    public String reissueToken(TokenReissueDto tokenReissueDto) {
+        User user = userRepository.findById(tokenReissueDto.getUserId()).orElseThrow();
+        TokenDto tokenDto = jwtProvider.checkValidationAndReissue(user, tokenReissueDto.getToken()).orElseThrow();
+        return tokenDto.getAccessToken();
+    }
 
+    @Override
+    public boolean deleteUser(String userId) {
+        Optional<User> _user = userRepository.findById(userId);
+        if(_user.isEmpty()) {
+            System.out.println("계정을 삭제하려고 하였지만, "+userId+"에 해당하는 유저가 없습니다.");
+            return false;
+        }
+        else{
+            userRepository.delete(_user.get());
+            return true;
+        }
+    }
+
+    @Override
+    @Transactional
+    public boolean logout(String userId) {
+        Optional<User> _user = userRepository.findById(userId);
+        if(_user.isEmpty()){
+            System.out.println("로그아웃을 시도했지만, " + userId + "에 해당하는 유저가 없습니다.");
+            return false;
+        }
+        else{
+            User user = _user.get();
+            user.setRefreshToken(null);
+            return true;
+        }
     }
 }

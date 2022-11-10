@@ -12,7 +12,6 @@ import java.util.Date;
 @Builder
 public class LoginResponseDtoImpl implements LoginResponse {
     private String userName;
-    private String refreshToken;
     private String accessToken;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

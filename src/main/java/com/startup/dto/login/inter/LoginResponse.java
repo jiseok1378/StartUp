@@ -5,7 +5,6 @@ import java.util.Date;
 public interface LoginResponse {
     String getUserName();
     String getAccessToken();
-    String getRefreshToken();
 
     Date getExpirationDate(); // access token의 expire date 전달
 }

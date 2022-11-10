@@ -1,15 +1,12 @@
 package com.startup.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.startup.dto.login.LoginDtoImpl;
-import com.startup.dto.login.LoginResponseDtoImpl;
-import com.startup.dto.login.SignUpDtoImpl;
+import com.startup.dto.login.*;
 import com.startup.dto.login.inter.LoginDto;
-import com.startup.dto.login.inter.LoginResponse;
-import com.startup.dto.login.inter.SignUpDto;
 import com.startup.entity.User;
+import com.startup.repository.UserRepository;
 import com.startup.security.jwt.JwtProvider;
-import com.startup.service.inter.LoginService;
+import com.startup.service.inter.UserService;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,7 +22,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -35,16 +31,16 @@ import java.util.Optional;
                 "com.startup.security.config",
                 "com.startup.security.jwt"
         })
-public class LoginServiceImplTest  {
+public class UserControllerTest {
 
     @Autowired
-    private LoginService loginService;
+    private UserService userService;
 
     @Autowired
     private JwtProvider jwtProvider;
 
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
 
     @Autowired
     private MockMvc mvc;
@@ -77,7 +73,6 @@ public class LoginServiceImplTest  {
                 .userId(signUpDto.getUserId())
                 .build();
 
-
         String resBodyOfLogin = mvc.perform(MockMvcRequestBuilders.post("/api/v1/login")
                         .content(mapper.writeValueAsString(loginDto))
                         .contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)))
@@ -88,47 +83,39 @@ public class LoginServiceImplTest  {
 
         LoginResponseDtoImpl loginResponseDto = mapper.readValue(resBodyOfLogin, LoginResponseDtoImpl.class);
 
+        System.out.println(userRepository.findByUserIdAndPassword(loginDto.getUserId(), loginDto.getPassword()).get().getUserId());;
         Assertions.assertThat(jwtProvider.validationToken(loginResponseDto.getAccessToken())).isEqualTo(true);
-    }
-    @Test
-    public void testLogIn() {
-        SignUpDto signUpDto = SignUpDtoImpl.builder()
-                .email("abc2")
-                .name("abc2")
-                .userId("abc2")
-                .password("abc2")
-                .registerNumber("abc2")
-                .build();
 
-        Assertions.assertThat(loginService.signUp(signUpDto)).isEqualTo("abc2");
+        Thread.sleep(1000);
+        String reissuedAccessToken = mvc.perform(MockMvcRequestBuilders.post("/api/v1/token")
+                        .contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
+                        .content(mapper.writeValueAsBytes(TokenReissueDto.builder().userId(loginDto.getUserId()).token(loginResponseDto.getAccessToken()).build())))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
-        LoginDto loginDto = LoginDtoImpl.builder()
-                .userId("abc2")
-                .password("abc2")
-                .build();
+        String logoutResult = mvc.perform(MockMvcRequestBuilders.post("/api/v1/logout")
+                        .header(JwtProvider.TOKEN_HEADER_KEY, reissuedAccessToken)
+                        .content(loginDto.getUserId()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
-        LoginResponse ret = loginService.logIn(loginDto);
+        Assertions.assertThat(mapper.readValue(logoutResult, Boolean.class)).isEqualTo(true);
 
-        User user = userService.findWithPassword(loginDto.getUserId(), loginDto.getPassword()).orElseThrow();
+        User afterLogout = userRepository.findByUserIdAndPassword(loginDto.getUserId(), loginDto.getPassword()).orElseThrow();
 
-        Assertions.assertThat(jwtProvider.isAccessTokenValid(ret.getAccessToken(), user.getRefreshToken())).isEqualTo(true);
-    }
+        Assertions.assertThat(afterLogout.getRefreshToken()).isEqualTo(null);
+        String deleteUserResult = mvc.perform(MockMvcRequestBuilders.delete("/api/v1/user")
+                .header(JwtProvider.TOKEN_HEADER_KEY, reissuedAccessToken)
+                .content(loginDto.getUserId()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
-    public void testLogOut() {
-    }
-
-    @Test
-    public void testSignUp() {
-        SignUpDto signUpDto = SignUpDtoImpl.builder()
-                .email("abc")
-                .name("abc")
-                .userId("abc")
-                .password("abc")
-                .registerNumber("abc")
-                .build();
-        Assertions.assertThat(loginService.signUp(signUpDto)).isEqualTo("abc");
-    }
-
-    public void testDeleteUser() {
+        Assertions.assertThat(mapper.readValue(deleteUserResult, Boolean.class)).isEqualTo(true);
     }
 }
