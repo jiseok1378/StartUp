@@ -76,6 +76,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public boolean checkUserDuplicate(String userId) {
+        return userRepository.findById(userId).isEmpty();
+    }
+
+    @Override
     @Transactional
     public boolean logout(String userId) {
         Optional<User> _user = userRepository.findById(userId);

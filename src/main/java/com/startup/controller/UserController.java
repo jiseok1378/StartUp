@@ -25,6 +25,11 @@ public class UserController {
         return userService.signUp(signUpDto);
     }
 
+    @GetMapping("/user/duplicate")
+    public boolean checkDuplication(@RequestParam("userId") String userId){
+        return userService.checkUserDuplicate(userId);
+    }
+
     @PostMapping("/token")// 보안을 위해 Post 맵핑을 사용하였다. 맞는지는 잘 모르겠다.
     public String reissueToken(@RequestBody TokenReissueDto tokenReissueDto){
         return userService.reissueToken(tokenReissueDto);

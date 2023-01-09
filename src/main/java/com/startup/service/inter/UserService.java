@@ -17,5 +17,6 @@ public interface UserService {
     // 성공적으로 삭제하면 true 예외의 경우엔 false
     boolean deleteUser(String userId);
 
+    boolean checkUserDuplicate(String userId);
     boolean logout(String userId);
 }
